@@ -196,8 +196,8 @@ public class ConnectionAlgoDB {
 				String inArgType = rs.getString("InArgType");
 				String outArgType = rs.getString("OutArgType");
 				source = rs.getString("Source");
-				System.out.println(
-						id + "\t" + name + "\t" + className + "\t" + inArgType + "\t" + outArgType + "\t" + source);
+//				System.out.println(
+//						id + "\t" + name + "\t" + className + "\t" + inArgType + "\t" + outArgType + "\t" + source);
 			}
 
 			rs.beforeFirst();
@@ -708,8 +708,12 @@ public class ConnectionAlgoDB {
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-
+		System.out.println(queryOperator);
+		System.out.println(inArgType);
 		String type[] = inArgType.split(",");
+		//type.length -> outputStack.size()+1
+		System.out.println(outputStack.size());
+		System.out.println(type.length);
 		String[] paraAr = new String[type.length];
 		paraAr[0] = parentValue;
 		for (int i = 1; i < paraAr.length; i++) {
@@ -720,7 +724,6 @@ public class ConnectionAlgoDB {
 		parameter.parObj = new Object[numInArgs];
 		Object callParameter = null; // 메소드를 호출할 때 전달한 인자
 		for (int i = 0; i < type.length; i++) {
-
 			// String일 경우에만 되어있지만 여러개를 case문으로 돌릴 예정
 			// String 외에도 int Integer double 등등
 
@@ -817,9 +820,14 @@ public class ConnectionAlgoDB {
 			// stack.push("String");
 			if (rMaker.compileSource(file)) {
 				urlClassLoader = rMaker.sourceClassLoader(path);
+				System.out.println("소스런");
 				result = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, methodName, parameter);
+				System.out.println("소스런끝");
+				
 				// rMaker.sourceRun2(urlClassLoader, className, inArgType,
 				// numInArgs, methodName, stack);
+			}else{
+				System.out.println("컴파일 안됨");
 			}
 
 			// compileCheck = rMaker.compileSource(file);

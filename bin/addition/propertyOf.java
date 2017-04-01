@@ -2,6 +2,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
 
+import com.github.javaparser.ast.body.Parameter;
 
 import addition.ConnectionAlgoDB;
 import com.github.javaparser.JavaParser;
@@ -9,9 +10,12 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.body.VariableDeclaratorId;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.VoidType;
+import com.github.javaparser.ast.stmt.BlockStmt;
 
 public class propertyOf {
 	ResultSet rs = null;
@@ -24,6 +28,7 @@ public class propertyOf {
 		System.out.println("outputStackValue 는 : " + outputStackValue);
 		System.out.println("outputStackValue2 는 : " + outputStackValue2);
 		String propertyTypeAndName[] = outputStackValue.split(" ");
+		
 		rs = ConnectionAlgoDB.getRelevantAlgorithm(parentValue);
 		rs2 = ConnectionAlgoDB.getRelevantAlgorithm(outputStackValue2);
 		
@@ -104,6 +109,24 @@ public class propertyOf {
 		EnumSet<Modifier> modifiers2 = EnumSet.of(Modifier.PUBLIC);
 		FieldDeclaration field2 = new FieldDeclaration(modifiers2, new ClassOrInterfaceType(propertyTypeAndName[0]),
 				new VariableDeclarator(new VariableDeclaratorId(propertyTypeAndName[1])));
+	
+				
+        MethodDeclaration method = type.addMethod(className, Modifier.PUBLIC, Modifier.STATIC);
+    
+        BlockStmt block = new BlockStmt();
+   block.addStatement(
+        		"String trainData = \"example4/train.dat\"\n"+
+        		"String modelName = \"example4/model\";\n"+
+        		"Ref aRef = new Ref();\n"+
+        		"Classifier.classify(aRef.text, InfoExtract_Style.classifier_by_style, aRef.refValue);"
+        		+ "HashMap<String, CRFmodel> aCRFmodelMap = new HashMap<String, CRFmodel>();"
+		+ "aCRFmodelMap.put(\"IEEE\", new CRFmodel(\"IEEEmodel\"));"
+		+ "InfoExtract_Style aThisClass = new InfoExtract_Style();"
+		+ "InfoExtract_Style(new RefSet_Style(), aCRFmodelMap);"
+
+        		);
+        method.setBody(block);
+		
 		type.addMember(field2);
 		type.setName(className + "_" + propertyTypeAndName[1]);
 		

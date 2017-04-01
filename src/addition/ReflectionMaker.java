@@ -60,7 +60,7 @@ public class ReflectionMaker {
 //		optionList.addAll(Arrays.asList("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar"));
 		optionList.add("-classpath");
 //		optionList.add("java.class.path");
-		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin");
+		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/");
 //		for(int i =0; i<optionList.size(); i++){
 //			System.out.println(optionList.get(i).toString());
 //		}
