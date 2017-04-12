@@ -112,19 +112,20 @@ public class propertyOf {
 	
 				
         MethodDeclaration method = type.addMethod(className, Modifier.PUBLIC, Modifier.STATIC);
+        method.addAndGetParameter(String.class, "refText");
+
     
         BlockStmt block = new BlockStmt();
-   block.addStatement(
-        		"String trainData = \"example4/train.dat\"\n"+
-        		"String modelName = \"example4/model\";\n"+
-        		"Ref aRef = new Ref();\n"+
-        		"Classifier.classify(aRef.text, InfoExtract_Style.classifier_by_style, aRef.refValue);"
-        		+ "HashMap<String, CRFmodel> aCRFmodelMap = new HashMap<String, CRFmodel>();"
-		+ "aCRFmodelMap.put(\"IEEE\", new CRFmodel(\"IEEEmodel\"));"
-		+ "InfoExtract_Style aThisClass = new InfoExtract_Style();"
-		+ "InfoExtract_Style(new RefSet_Style(), aCRFmodelMap);"
-
-        		);
+block.addStatement(		
+			"String " + className +"_"+ propertyTypeAndName[1] + "_Train_Data = Classifier.getTrainData(\""+ className + "_"+propertyTypeAndName[1]+"_"+"Train_Data\");\n"+
+			"String resultModelPath = Classifier.learn(" + className + "_"+propertyTypeAndName[1]+"_Train_Data);\n"+
+			"String classifiedPath = Classifier.classify(refText, resultModelPath, \"model_result\");\n"+
+			"String crfModelPath = Classifier.getCRFModelPath(classifiedPath);\n"+
+			"Ref_Style ref_Style = new Ref_Style();\n"+
+			"ref_Style.setText(refText);\n"+
+			"ref_Style.Style = crfModelPath;\n"+
+			className+"."+className+"(ref_Style.getText(), ref_Style.Style);\n"
+			);
         method.setBody(block);
 		
 		type.addMember(field2);

@@ -41,18 +41,22 @@ public class ConnectionAlgoDB {
 
 	}
 
-	public static void updateDB(String table, String name, String className,String inArgType,
-			String outArgType, String source, int numInArg, String operSymbol, String methodName){
+	public static void updateDB(String table, String name, String className, String inArgType, String outArgType,
+			String source, int numInArg, String operSymbol, String methodName) {
 		System.out.println("updateDB 실행!");
 		Statement statement = null;
 		ResultSet rs = null;
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection connection = DriverManager.getConnection(dbUrl,
-					dbUsername, dbPassword);
+			Connection connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
 			statement = connection.createStatement();
-//			statement.executeUpdate("INSERT INTO `elab`.`"+table+"` (`Name`, `ClassName`, `Source`) VALUES ('"+name+"', '"+className+"', '"+source+"');");
-			statement.executeUpdate("INSERT INTO `elab`.`"+table+"` (`Name`, `ClassName`, `InArgType`, `OutArgType`, `Source`, `NumInArg`, `OperSymbol`, `MethodName`) VALUES ('"+name+"', '"+className+"', '"+inArgType+"', '"+outArgType+"', '"+source+"', '"+numInArg+"', '"+operSymbol+"', '"+methodName+"');");
+			// statement.executeUpdate("INSERT INTO `elab`.`"+table+"` (`Name`,
+			// `ClassName`, `Source`) VALUES ('"+name+"', '"+className+"',
+			// '"+source+"');");
+			statement.executeUpdate("INSERT INTO `elab`.`" + table
+					+ "` (`Name`, `ClassName`, `InArgType`, `OutArgType`, `Source`, `NumInArg`, `OperSymbol`, `MethodName`) VALUES ('"
+					+ name + "', '" + className + "', '" + inArgType + "', '" + outArgType + "', '" + source + "', '"
+					+ numInArg + "', '" + operSymbol + "', '" + methodName + "');");
 			updateDB = true;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -61,15 +65,14 @@ public class ConnectionAlgoDB {
 		}
 		System.out.println("DB업데이트!!!!");
 	}
-	
-	public static ResultSet getRdfs(){
+
+	public static ResultSet getRdfs() {
 		Statement statement = null;
 		ResultSet rs = null;
-		
+
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection connection = DriverManager.getConnection(dbUrl,
-					dbUsername, dbPassword);
+			Connection connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
 			statement = connection.createStatement();
 			String str = "select * from rdfs";
 			rs = statement.executeQuery(str);
@@ -81,15 +84,32 @@ public class ConnectionAlgoDB {
 		}
 		return rs;
 	}
-	public static ResultSet getAlgorithm(){
+
+	public static ResultSet getAlgorithm() {
 		Statement statement = null;
 		ResultSet rs = null;
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection connection = DriverManager.getConnection(dbUrl,
-					dbUsername, dbPassword);
+			Connection connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
 			statement = connection.createStatement();
 			String str = "select * from algorithm";
+			rs = statement.executeQuery(str);
+		} catch (SQLException e) {
+			System.err.print(e.getMessage() + "SQLException ARGH!");
+		} catch (Exception e) {
+			System.err.print(e.getMessage() + "Exception FUUUUUUUUUU!");
+		}
+		return rs;
+	}
+
+	public static ResultSet getCRFModelbyStyleName(String queryOperator) {
+		Statement statement = null;
+		ResultSet rs = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+			statement = connection.createStatement();
+			String str = "select * from crfmodels where style ='" + queryOperator + "';";
 			rs = statement.executeQuery(str);
 		} catch (SQLException e) {
 			System.err.print(e.getMessage() + "SQLException ARGH!");
@@ -196,8 +216,9 @@ public class ConnectionAlgoDB {
 				String inArgType = rs.getString("InArgType");
 				String outArgType = rs.getString("OutArgType");
 				source = rs.getString("Source");
-//				System.out.println(
-//						id + "\t" + name + "\t" + className + "\t" + inArgType + "\t" + outArgType + "\t" + source);
+				// System.out.println(
+				// id + "\t" + name + "\t" + className + "\t" + inArgType + "\t"
+				// + outArgType + "\t" + source);
 			}
 
 			rs.beforeFirst();
@@ -685,6 +706,126 @@ public class ConnectionAlgoDB {
 		return rs;
 	}
 
+	public String execute(String queryOperator, Stack<String> outputStack) {
+		String className = "";
+		String source = "";
+		String inArgType = "";
+		int numInArgs = 0;
+		String methodName = "";
+		Parameter parameter = new Parameter();
+		String result = "";
+		URLClassLoader urlClassLoader = null;
+		ResultSet rs = getResultSet(queryOperator);
+		try {
+			while (rs.next()) {
+				inArgType = rs.getString("InArgType");
+				numInArgs = rs.getInt("NumInArg");
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		String type[] = inArgType.split(",");
+		// type.length -> outputStack.size()+1
+		String[] paraAr = new String[type.length];
+		
+		if (queryOperator.equals("infoExtract")) {
+			Ref ref = new Ref();
+			ref.setText(outputStack.pop());
+//			paraAr[i] = ref; 
+		}
+		
+		for (int i = 0; i < paraAr.length; i++) {
+			paraAr[i] = outputStack.pop();
+		}
+		
+		parameter.partypes = new Class[numInArgs];
+		parameter.parObj = new Object[numInArgs];
+		Object callParameter = null; // 메소드를 호출할 때 전달한 인자
+		for (int i = 0; i < type.length; i++) {
+			// String일 경우에만 되어있지만 여러개를 case문으로 돌릴 예정
+			// String 외에도 int Integer double 등등
+			if (type[i].equals("java.lang.String")) {
+				Object parObj;
+				try {
+					parameter.setParTypes(Class.forName("java.lang.String"), i);
+					callParameter = paraAr[i];
+					parameter.setParObj(callParameter, i);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			} else {
+				rs = getResultSet(type[i]);
+				System.out.println("query: " + type[i]);
+				try {
+					while (rs.next()) {
+						String id = rs.getString("ID");
+						String name = rs.getString("Name");
+						className = rs.getString("ClassName");
+						inArgType = rs.getString("InArgType");
+						numInArgs = rs.getInt("NumInArg");
+						String outArgType = rs.getString("OutArgType");
+						source = rs.getString("Source");
+						methodName = rs.getString("MethodName");
+					}
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
+				String path = ConnectionAlgoDB.class.getResource("").getPath();
+
+				ReflectionMaker rMakerP = new ReflectionMaker(outputStack);
+				File file = rMakerP.writeSource(className, source, path); // 소스파일
+				// className.java로 작성
+				if (rMakerP.compileSource(file)) {
+					try {
+						urlClassLoader = rMakerP.sourceClassLoader(path);
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+					// 파라미터가 객체일 시 파라미터를 만든다.
+					parameter = rMakerP.makeParObject(urlClassLoader, className, methodName, numInArgs, inArgType,
+							parameter, i);
+				}
+			}
+		}
+		try {
+			rs = getResultSet(queryOperator);
+			System.out.println("query: " + queryOperator);
+			while (rs.next()) {
+				String id = rs.getString("ID");
+				String name = rs.getString("Name");
+				className = rs.getString("ClassName");
+				inArgType = rs.getString("InArgType");
+				numInArgs = rs.getInt("NumInArg");
+				String outArgType = rs.getString("OutArgType");
+				source = rs.getString("Source");
+				methodName = rs.getString("MethodName");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		String path = ConnectionAlgoDB.class.getResource("").getPath();
+		ReflectionMaker rMaker = new ReflectionMaker(outputStack);
+		File file = rMaker.writeSource(className, source, path); // 소스파일
+		try {
+			boolean compileCheck = false;
+			boolean flag = true;
+			if (rMaker.compileSource(file)) {
+				urlClassLoader = rMaker.sourceClassLoader(path);
+				System.out.println("소스런");
+				result = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, methodName, parameter);
+				System.out.println("소스런끝");
+			} else {
+				System.out.println("컴파일 안됨");
+			}
+			urlClassLoader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	public String execute(String queryOperator, Stack<String> outputStack, String parentValue) {
 		String className = "";
 		String source = "";
@@ -708,25 +849,21 @@ public class ConnectionAlgoDB {
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
-		System.out.println(queryOperator);
-		System.out.println(inArgType);
 		String type[] = inArgType.split(",");
-		//type.length -> outputStack.size()+1
-		System.out.println(outputStack.size());
-		System.out.println(type.length);
+		// type.length -> outputStack.size()+1
 		String[] paraAr = new String[type.length];
 		paraAr[0] = parentValue;
 		for (int i = 1; i < paraAr.length; i++) {
-			paraAr[i] = outputStack.pop();
+			if(!outputStack.isEmpty()){
+				paraAr[i] = outputStack.pop();
+			}
 		}
-
 		parameter.partypes = new Class[numInArgs];
 		parameter.parObj = new Object[numInArgs];
 		Object callParameter = null; // 메소드를 호출할 때 전달한 인자
 		for (int i = 0; i < type.length; i++) {
 			// String일 경우에만 되어있지만 여러개를 case문으로 돌릴 예정
 			// String 외에도 int Integer double 등등
-
 			if (type[i].equals("java.lang.String")) {
 				Object parObj;
 				try {
@@ -749,7 +886,8 @@ public class ConnectionAlgoDB {
 						String outArgType = rs.getString("OutArgType");
 						source = rs.getString("Source");
 						methodName = rs.getString("MethodName");
-						System.out.println(name + "\t" + inArgType + "\t" + outArgType + "\t");
+						// System.out.println(name + "\t" + inArgType + "\t" +
+						// outArgType + "\t");
 					}
 
 				} catch (SQLException e) {
@@ -757,7 +895,6 @@ public class ConnectionAlgoDB {
 				}
 
 				String path = ConnectionAlgoDB.class.getResource("").getPath();
-				System.out.println(path);
 
 				ReflectionMaker rMakerP = new ReflectionMaker(outputStack);
 				File file = rMakerP.writeSource(className, source, path); // 소스파일
@@ -798,14 +935,15 @@ public class ConnectionAlgoDB {
 				String outArgType = rs.getString("OutArgType");
 				source = rs.getString("Source");
 				methodName = rs.getString("MethodName");
-				System.out.println(name + "\t" + inArgType + "\t" + outArgType + "\t");
+				// System.out.println(name + "\t" + inArgType + "\t" +
+				// outArgType + "\t");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		String path = ConnectionAlgoDB.class.getResource("").getPath();
 
-//		System.out.println(path);
+		// System.out.println(path);
 
 		ReflectionMaker rMaker = new ReflectionMaker(outputStack);
 		File file = rMaker.writeSource(className, source, path); // 소스파일
@@ -823,10 +961,10 @@ public class ConnectionAlgoDB {
 				System.out.println("소스런");
 				result = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, methodName, parameter);
 				System.out.println("소스런끝");
-				
+
 				// rMaker.sourceRun2(urlClassLoader, className, inArgType,
 				// numInArgs, methodName, stack);
-			}else{
+			} else {
 				System.out.println("컴파일 안됨");
 			}
 
