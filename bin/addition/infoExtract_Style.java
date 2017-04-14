@@ -1,22 +1,25 @@
+package addition;
+
 import java.*;
+import ke.*;
 
-public class infoExtract_Style {
+public class InfoExtract_Style {
 
-    public static void infoExtract(String text) {
-        System.out.println("지금 mallet 알고리즘 실행 중");
+    public static void InfoExtract(String text) {
         System.out.println("aRef.text");
         System.out.println(text);
     }
 
-    public static void infoExtract_Style(String refText) {
-        String infoExtract_Style_Train_Data = Classifier.getTrainData("infoExtract_Style_Train_Data");
-String resultModelPath = Classifier.learn(infoExtract_Style_Train_Data);
+    public static void InfoExtract(String refText, String b) {
+        System.out.println("refText" + refText);
+    }
+
+    public static void InfoExtract_Style(String refText) {
+        String InfoExtract_Style_Train_Data = Classifier.getTrainData("InfoExtract_Style_Train_Data");
+String resultModelPath = Classifier.learn(InfoExtract_Style_Train_Data);
 String classifiedPath = Classifier.classify(refText, resultModelPath, "model_result");
 String crfModelPath = Classifier.getCRFModelPath(classifiedPath);
-Ref_Style ref_Style = new Ref_Style();
-ref_Style.setText(refText);
-ref_Style.Style = crfModelPath;
-infoExtract.infoExtract(ref_Style.getText(), ref_Style.Style);
+InfoExtract.InfoExtract(refText, crfModelPath);
 ;
     }
 

@@ -60,12 +60,13 @@ public class ReflectionMaker {
 //		optionList.addAll(Arrays.asList("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar"));
 //		optionList.add("-classpath");
 //		optionList.add("java.class.path");
-//		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/"+"C:/Users/Hooo/workspace/rdf-prog/bin/ke/");
-//		for(int i =0; i<optionList.size(); i++){
-//			System.out.println(optionList.get(i).toString());
-//		}
-//		System.out.println();
-//		optionList.add(ConnectionAlgoDB.class.getResource("").getPath());
+//		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/addition"+";C:/Users/Hooo/workspace/rdf-prog/bin/ke/;");
+		System.out.println("!!!!!!!!!!!!!!!!!ClassPath 목록");
+		for(int i =0; i<optionList.size(); i++){
+			System.out.println(optionList.get(i).toString());
+		}
+		System.out.println();
+		
 //		System.out.println(ConnectionAlgoDB.class.getResource("").getPath());
 		Iterable<? extends JavaFileObject> compilationUnit = fileManager
 				.getJavaFileObjectsFromFiles(Arrays.asList(file));
@@ -145,7 +146,7 @@ public class ReflectionMaker {
 			String strMethod, Parameter parameter) {
 		String result = "";
 		try {
-			Class<?> loadedClass = urlClassLoader.loadClass(className);// "add"\
+			Class<?> loadedClass = urlClassLoader.loadClass("addition."+className);// "add"\
 			Object obj = loadedClass.newInstance();
 			Object obj2 = null;
 			Method meth2 = null;
