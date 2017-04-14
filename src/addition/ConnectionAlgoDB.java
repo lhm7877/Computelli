@@ -732,10 +732,11 @@ public class ConnectionAlgoDB {
 			Ref ref = new Ref();
 			ref.setText(outputStack.pop());
 //			paraAr[i] = ref; 
-		}
-		
-		for (int i = 0; i < paraAr.length; i++) {
-			paraAr[i] = outputStack.pop();
+		}else{
+			
+			for (int i = 0; i < paraAr.length; i++) {
+				paraAr[i] = outputStack.pop();
+			}
 		}
 		
 		parameter.partypes = new Class[numInArgs];
@@ -854,9 +855,10 @@ public class ConnectionAlgoDB {
 		String[] paraAr = new String[type.length];
 		paraAr[0] = parentValue;
 		for (int i = 1; i < paraAr.length; i++) {
-			if(!outputStack.isEmpty()){
-				paraAr[i] = outputStack.pop();
+			if(i==2){
+				outputStack.push("infoExtract");
 			}
+				paraAr[i] = outputStack.pop();
 		}
 		parameter.partypes = new Class[numInArgs];
 		parameter.parObj = new Object[numInArgs];

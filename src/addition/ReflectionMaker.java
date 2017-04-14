@@ -56,11 +56,11 @@ public class ReflectionMaker {
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
 		List<String> optionList = new ArrayList<String>();
-//		optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
+		optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
 //		optionList.addAll(Arrays.asList("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar"));
-		optionList.add("-classpath");
+//		optionList.add("-classpath");
 //		optionList.add("java.class.path");
-		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/");
+//		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/"+"C:/Users/Hooo/workspace/rdf-prog/bin/ke/");
 //		for(int i =0; i<optionList.size(); i++){
 //			System.out.println(optionList.get(i).toString());
 //		}
