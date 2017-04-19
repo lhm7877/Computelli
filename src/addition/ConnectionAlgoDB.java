@@ -43,6 +43,8 @@ public class ConnectionAlgoDB {
 
 	public static void updateDB(String table, String name, String className, String inArgType, String outArgType,
 			String source, int numInArg, String operSymbol, String methodName) {
+		
+		source = source.replaceAll("\\\"", "\\\\\"");
 		System.out.println("updateDB 실행!");
 		Statement statement = null;
 		ResultSet rs = null;
@@ -53,6 +55,7 @@ public class ConnectionAlgoDB {
 			// statement.executeUpdate("INSERT INTO `elab`.`"+table+"` (`Name`,
 			// `ClassName`, `Source`) VALUES ('"+name+"', '"+className+"',
 			// '"+source+"');");
+			System.out.println(source);
 			statement.executeUpdate("INSERT INTO `elab`.`" + table
 					+ "` (`Name`, `ClassName`, `InArgType`, `OutArgType`, `Source`, `NumInArg`, `OperSymbol`, `MethodName`) VALUES ('"
 					+ name + "', '" + className + "', '" + inArgType + "', '" + outArgType + "', '" + source + "', '"
@@ -816,6 +819,7 @@ public class ConnectionAlgoDB {
 				urlClassLoader = rMaker.sourceClassLoader(path);
 				System.out.println("소스런");
 				result = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, methodName, parameter);
+//				hValue = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, "evaluate", parameter);
 				System.out.println("소스런끝");
 			} else {
 				System.out.println("컴파일 안됨");

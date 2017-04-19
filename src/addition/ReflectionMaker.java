@@ -118,6 +118,8 @@ public class ReflectionMaker {
 //			Method meth = parameter.partypes[index].getMethod(strMethod, new Class[] { java.lang.String.class });
 			
 			outputStack.push("박성희, (2016), \"KE\", 정보관리학회, 33, (3), pp. 22-40 ");
+			//정답 
+
 //			m[1].invoke(parameter.parObj[index], outputStack.pop().toString());
 			meth.invoke(parameter.parObj[index],outputStack.pop().toString());
 
