@@ -10,6 +10,7 @@ public class Node2 {
 	public ArrayList<Edge2> outEdge2; // outbound
 	public Node2 parent;
 	public boolean visited;
+	public boolean dfsVisited;
 	public double hScore = 0;
 	public double fScore = 0;
 	private String output;
@@ -17,7 +18,17 @@ public class Node2 {
 //	public String type;
 	public boolean isOperator;
 	public String inArgType;
+	private boolean isAlgoGraphNode;
 	
+	
+
+	public boolean isAlgoGraphNode() {
+		return isAlgoGraphNode;
+	}
+
+	public void setAlgoGraphNode(boolean isAlgoGraphNode) {
+		this.isAlgoGraphNode = isAlgoGraphNode;
+	}
 
 	public String getInput() {
 		return input;
@@ -53,6 +64,8 @@ public class Node2 {
 		inEdge2 = new ArrayList<Edge2>();
 		outEdge2 = new ArrayList<Edge2>();
 		this.visited = false;
+		this.dfsVisited=false;
 		this.isOperator = isOperator;
+		this.isAlgoGraphNode = false;
 	}
 }

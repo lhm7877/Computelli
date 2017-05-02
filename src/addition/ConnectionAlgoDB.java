@@ -43,9 +43,8 @@ public class ConnectionAlgoDB {
 
 	public static void updateDB(String table, String name, String className, String inArgType, String outArgType,
 			String source, int numInArg, String operSymbol, String methodName) {
-		
+
 		source = source.replaceAll("\\\"", "\\\\\"");
-		System.out.println("updateDB 실행!");
 		Statement statement = null;
 		ResultSet rs = null;
 		try {
@@ -55,7 +54,6 @@ public class ConnectionAlgoDB {
 			// statement.executeUpdate("INSERT INTO `elab`.`"+table+"` (`Name`,
 			// `ClassName`, `Source`) VALUES ('"+name+"', '"+className+"',
 			// '"+source+"');");
-			System.out.println(source);
 			statement.executeUpdate("INSERT INTO `elab`.`" + table
 					+ "` (`Name`, `ClassName`, `InArgType`, `OutArgType`, `Source`, `NumInArg`, `OperSymbol`, `MethodName`) VALUES ('"
 					+ name + "', '" + className + "', '" + inArgType + "', '" + outArgType + "', '" + source + "', '"
@@ -66,7 +64,6 @@ public class ConnectionAlgoDB {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println("DB업데이트!!!!");
 	}
 
 	public static ResultSet getRdfs() {
@@ -198,7 +195,7 @@ public class ConnectionAlgoDB {
 			str = "select * from Algorithm where Name='" + queryOperator + "';";
 			rs = statement.executeQuery(str);
 
-			System.out.println("query:" + queryOperator);
+			// System.out.println("query:" + queryOperator);
 
 			String className = "";
 			String source = "";
@@ -730,66 +727,67 @@ public class ConnectionAlgoDB {
 		String type[] = inArgType.split(",");
 		// type.length -> outputStack.size()+1
 		String[] paraAr = new String[type.length];
-		
-		if (queryOperator.equals("infoExtract")) {
-			Ref ref = new Ref();
-			ref.setText(outputStack.pop());
-//			paraAr[i] = ref; 
-		}else{
-			
-			for (int i = 0; i < paraAr.length; i++) {
-				paraAr[i] = outputStack.pop();
-			}
-		}
-		
-		parameter.partypes = new Class[numInArgs];
-		parameter.parObj = new Object[numInArgs];
-		Object callParameter = null; // 메소드를 호출할 때 전달한 인자
-		for (int i = 0; i < type.length; i++) {
-			// String일 경우에만 되어있지만 여러개를 case문으로 돌릴 예정
-			// String 외에도 int Integer double 등등
-			if (type[i].equals("java.lang.String")) {
-				Object parObj;
-				try {
-					parameter.setParTypes(Class.forName("java.lang.String"), i);
-					callParameter = paraAr[i];
-					parameter.setParObj(callParameter, i);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
+		if (numInArgs != 0) {
+			if (queryOperator.equals("infoExtract")) {
+				Ref ref = new Ref();
+				ref.setText(outputStack.pop());
+				// paraAr[i] = ref;
 			} else {
-				rs = getResultSet(type[i]);
-				System.out.println("query: " + type[i]);
-				try {
-					while (rs.next()) {
-						String id = rs.getString("ID");
-						String name = rs.getString("Name");
-						className = rs.getString("ClassName");
-						inArgType = rs.getString("InArgType");
-						numInArgs = rs.getInt("NumInArg");
-						String outArgType = rs.getString("OutArgType");
-						source = rs.getString("Source");
-						methodName = rs.getString("MethodName");
-					}
 
-				} catch (SQLException e) {
-					e.printStackTrace();
+				for (int i = 0; i < paraAr.length; i++) {
+					paraAr[i] = outputStack.pop();
 				}
+			}
 
-				String path = ConnectionAlgoDB.class.getResource("").getPath();
-
-				ReflectionMaker rMakerP = new ReflectionMaker(outputStack);
-				File file = rMakerP.writeSource(className, source, path); // 소스파일
-				// className.java로 작성
-				if (rMakerP.compileSource(file)) {
+			parameter.partypes = new Class[numInArgs];
+			parameter.parObj = new Object[numInArgs];
+			Object callParameter = null; // 메소드를 호출할 때 전달한 인자
+			for (int i = 0; i < type.length; i++) {
+				// String일 경우에만 되어있지만 여러개를 case문으로 돌릴 예정
+				// String 외에도 int Integer double 등등
+				if (type[i].equals("java.lang.String")) {
+					Object parObj;
 					try {
-						urlClassLoader = rMakerP.sourceClassLoader(path);
-					} catch (MalformedURLException e) {
+						parameter.setParTypes(Class.forName("java.lang.String"), i);
+						callParameter = paraAr[i];
+						parameter.setParObj(callParameter, i);
+					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
-					// 파라미터가 객체일 시 파라미터를 만든다.
-					parameter = rMakerP.makeParObject(urlClassLoader, className, methodName, numInArgs, inArgType,
-							parameter, i);
+				} else {
+					rs = getResultSet(type[i]);
+					System.out.println("query: " + type[i]);
+					try {
+						while (rs.next()) {
+							String id = rs.getString("ID");
+							String name = rs.getString("Name");
+							className = rs.getString("ClassName");
+							inArgType = rs.getString("InArgType");
+							numInArgs = rs.getInt("NumInArg");
+							String outArgType = rs.getString("OutArgType");
+							source = rs.getString("Source");
+							methodName = rs.getString("MethodName");
+						}
+
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+
+					String path = ConnectionAlgoDB.class.getResource("").getPath();
+
+					ReflectionMaker rMakerP = new ReflectionMaker(outputStack);
+					File file = rMakerP.writeSource(className, source, path); // 소스파일
+					// className.java로 작성
+					if (rMakerP.compileSource(file)) {
+						try {
+							urlClassLoader = rMakerP.sourceClassLoader(path);
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+						// 파라미터가 객체일 시 파라미터를 만든다.
+						parameter = rMakerP.makeParObject(urlClassLoader, className, methodName, numInArgs, inArgType,
+								parameter, i);
+					}
 				}
 			}
 		}
@@ -819,7 +817,8 @@ public class ConnectionAlgoDB {
 				urlClassLoader = rMaker.sourceClassLoader(path);
 				System.out.println("소스런");
 				result = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, methodName, parameter);
-//				hValue = rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs, "evaluate", parameter);
+				// hValue = rMaker.sourceRun(urlClassLoader, className,
+				// inArgType, numInArgs, "evaluate", parameter);
 				System.out.println("소스런끝");
 			} else {
 				System.out.println("컴파일 안됨");
@@ -859,10 +858,10 @@ public class ConnectionAlgoDB {
 		String[] paraAr = new String[type.length];
 		paraAr[0] = parentValue;
 		for (int i = 1; i < paraAr.length; i++) {
-			if(i==2){
+			if (i == 2) {
 				outputStack.push("infoExtract");
 			}
-				paraAr[i] = outputStack.pop();
+			paraAr[i] = outputStack.pop();
 		}
 		parameter.partypes = new Class[numInArgs];
 		parameter.parObj = new Object[numInArgs];
@@ -881,7 +880,7 @@ public class ConnectionAlgoDB {
 				}
 			} else {
 				rs = getResultSet(type[i]);
-				System.out.println("query: " + type[i]);
+				// System.out.println("query: " + type[i]);
 				try {
 					while (rs.next()) {
 						String id = rs.getString("ID");
@@ -928,7 +927,7 @@ public class ConnectionAlgoDB {
 
 		try {
 			rs = getResultSet(queryOperator);
-			System.out.println("query: " + queryOperator);
+			// System.out.println("query: " + queryOperator);
 			// for (int i = 0; i < a.length; i++) {
 			// System.out.println(a[i]);
 			// }
