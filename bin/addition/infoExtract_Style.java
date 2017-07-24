@@ -12,6 +12,7 @@ public class InfoExtract_Style {
     void InfoExtract(// aRef is an instance of RefSet
     String refText) {
         System.out.println("InfoExtract 함수 실행중");
+        System.out.println("refText : " + refText);
         // in case of mallet ...we need a seq. labeler
         String command = // class path
         "java -cp  \"C:/mallet/class;C:/mallet/lib/mallet-deps.jar;\"" + // class to be executed
@@ -50,10 +51,8 @@ public class InfoExtract_Style {
 
     public static void InfoExtract_Style(String refText) {
         String InfoExtract_Style_Train_Data = Classifier.getTrainData("InfoExtract_Style_Train_Data");
-String resultModelPath = Classifier.learn(InfoExtract_Style_Train_Data);
-String classifiedPath = Classifier.classify(refText, resultModelPath, "model_result");
-String crfModelPath = Classifier.getCRFModelPath(classifiedPath);
-System.out.println(refText + crfModelPath);
+String classifiedValue = Classifier.classifyWithWeka(InfoExtract_Style_Train_Data);
+String crfModelPath = Classifier.getCRFModelPath(classifiedValue);
 InfoExtract.InfoExtract(refText);
 ;
     }

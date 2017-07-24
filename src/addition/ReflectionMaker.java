@@ -90,7 +90,7 @@ public class ReflectionMaker {
 	}
 
 	public Parameter makeParObject(URLClassLoader urlClassLoader, String className, String strMethod, int numInArgs,
-			String inArgType, Parameter parameter, int index) {
+			String inArgType, Parameter parameter, int index, Object paraObjectAr) {
 		try {
 			// Class<?> loadedClass;
 			// Object object;
@@ -104,27 +104,14 @@ public class ReflectionMaker {
 			// meth2.invoke(object, inputStack.pop().toString());
 
 			parameter.setParTypes(urlClassLoader.loadClass(className), index);
+			//이부분을 새로 생성하는게 아니라 객체를 전달할 수 있도록 해야함
+//			parameter.setParObj(parameter.partypes[index].newInstance(), index);
 			parameter.setParObj(parameter.partypes[index].newInstance(), index);
 			
-			Class<?> parameterOfParameterType = urlClassLoader.loadClass(inArgType);
-			
-//			Method[] m = parameter.partypes[index].getDeclaredMethods();
-//			for(int i =0; i<m.length; i++){
-//				System.out.println(m[i].getName());
-//				System.out.println(m[i].getParameters().toString());
-//			}
-			Method meth = parameter.partypes[index].getMethod(strMethod, parameterOfParameterType);
-//			Method meth2 = parameter.partypes[index].getMethod("print", null);
-//			Method meth = parameter.partypes[index].getMethod(strMethod, new Class[] { java.lang.String.class });
-			
-			outputStack.push("박성희, (2016), \"KE\", 정보관리학회, 33, (3), pp. 22-40 ");
-			//정답 
-
-//			m[1].invoke(parameter.parObj[index], outputStack.pop().toString());
-			meth.invoke(parameter.parObj[index],outputStack.pop().toString());
-
-			// System.out.println(parameter.parObj.getClass().getName() +
-			// "*******");
+//			Class<?> parameterOfParameterType = urlClassLoader.loadClass(inArgType);
+//			Method meth = parameter.partypes[index].getMethod(strMethod, parameterOfParameterType);
+//			outputStack.push("박성희, (2016), \"KE\", 정보관리학회, 33, (3), pp. 22-40 ");
+//			meth.invoke(parameter.parObj[index],outputStack.pop().toString());
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -134,11 +121,6 @@ public class ReflectionMaker {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		return parameter;

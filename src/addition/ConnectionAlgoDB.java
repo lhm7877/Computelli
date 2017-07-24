@@ -705,6 +705,9 @@ public class ConnectionAlgoDB {
 		}
 		return rs;
 	}
+	
+	
+	
 
 	public String execute(String queryOperator, Stack<String> outputStack) {
 		String className = "";
@@ -726,18 +729,19 @@ public class ConnectionAlgoDB {
 		}
 		String type[] = inArgType.split(",");
 		// type.length -> outputStack.size()+1
-		String[] paraAr = new String[type.length];
+		
+		Object[] paraObjectAr = new Object[type.length];
 		if (numInArgs != 0) {
-			if (queryOperator.equals("infoExtract")) {
-				Ref ref = new Ref();
-				ref.setText(outputStack.pop());
-				// paraAr[i] = ref;
-			} else {
-
-				for (int i = 0; i < paraAr.length; i++) {
-					paraAr[i] = outputStack.pop();
+//			if (queryOperator.equals("InfoExtract")) {
+//				Ref ref = new Ref();
+//				ref.setText(outputStack.pop());
+//				// paraAr[i] = ref;
+//			} else {
+				for (int i = 0; i < paraObjectAr.length; i++) {
+					paraObjectAr[i] = outputStack.pop();
+					System.out.println("!!!!outputStackPop"+paraObjectAr[i]);
 				}
-			}
+//			}
 
 			parameter.partypes = new Class[numInArgs];
 			parameter.parObj = new Object[numInArgs];
@@ -749,7 +753,7 @@ public class ConnectionAlgoDB {
 					Object parObj;
 					try {
 						parameter.setParTypes(Class.forName("java.lang.String"), i);
-						callParameter = paraAr[i];
+						callParameter = paraObjectAr[i];
 						parameter.setParObj(callParameter, i);
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
@@ -786,7 +790,7 @@ public class ConnectionAlgoDB {
 						}
 						// 파라미터가 객체일 시 파라미터를 만든다.
 						parameter = rMakerP.makeParObject(urlClassLoader, className, methodName, numInArgs, inArgType,
-								parameter, i);
+								parameter, i,paraObjectAr[i]);
 					}
 				}
 			}
@@ -855,13 +859,13 @@ public class ConnectionAlgoDB {
 		}
 		String type[] = inArgType.split(",");
 		// type.length -> outputStack.size()+1
-		String[] paraAr = new String[type.length];
-		paraAr[0] = parentValue;
-		for (int i = 1; i < paraAr.length; i++) {
+		Object[] paraObjectAr = new String[type.length];
+		paraObjectAr[0] = parentValue;
+		for (int i = 1; i < paraObjectAr.length; i++) {
 			if (i == 2) {
 				outputStack.push("infoExtract");
 			}
-			paraAr[i] = outputStack.pop();
+			paraObjectAr[i] = outputStack.pop();
 		}
 		parameter.partypes = new Class[numInArgs];
 		parameter.parObj = new Object[numInArgs];
@@ -873,7 +877,7 @@ public class ConnectionAlgoDB {
 				Object parObj;
 				try {
 					parameter.setParTypes(Class.forName("java.lang.String"), i);
-					callParameter = paraAr[i];
+					callParameter = paraObjectAr[i];
 					parameter.setParObj(callParameter, i);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
@@ -915,7 +919,7 @@ public class ConnectionAlgoDB {
 
 					// 파라미터가 객체일 시 파라미터를 만든다.
 					parameter = rMakerP.makeParObject(urlClassLoader, className, methodName, numInArgs, inArgType,
-							parameter, i);
+							parameter, i,paraObjectAr[i]);
 					// ParameterAr.add(rMakerP.makeParObject(urlClassLoader,
 					// className, methodName, numInArgs ,inArgType));
 					// rMakerP.sourceRun(urlClassLoader, className, inArgType,
