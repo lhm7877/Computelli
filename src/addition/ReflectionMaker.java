@@ -103,7 +103,7 @@ public class ReflectionMaker {
 			// ");
 			// meth2.invoke(object, inputStack.pop().toString());
 
-			parameter.setParTypes(urlClassLoader.loadClass(className), index);
+			parameter.setParTypes(urlClassLoader.loadClass("addition."+className), index);
 			//이부분을 새로 생성하는게 아니라 객체를 전달할 수 있도록 해야함
 //			parameter.setParObj(parameter.partypes[index].newInstance(), index);
 			parameter.setParObj(parameter.partypes[index].newInstance(), index);
