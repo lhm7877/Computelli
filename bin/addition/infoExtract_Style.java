@@ -9,7 +9,7 @@ import ke.*;
 public class InfoExtract_Style {
 
     public static // aRef is an instance of RefSet
-    void InfoExtract(// aRef is an instance of RefSet
+    Ref InfoExtract(// aRef is an instance of RefSet
     Ref ref) {
         System.out.println("InfoExtract 함수 실행중");
         System.out.println("ref : " + ref);
@@ -23,6 +23,7 @@ public class InfoExtract_Style {
         String command2 = // class path
         "java -cp  \"C:/mallet/class;C:/mallet/lib/mallet-deps.jar\"" + " cc.mallet.fst.SimpleTagger " + " --model-file C:/mallet/nouncrf " + " C:/mallet/stest";
         executeSystemCommand(command2);
+        return ref;
     }
 
     public static void executeSystemCommand(String s) {
@@ -49,12 +50,12 @@ public class InfoExtract_Style {
         }
     }
 
-    public static void InfoExtract_Style(addition.Ref_Style refText) {
-        String InfoExtract_Style_Train_Data = Classifier.getTrainData("InfoExtract_Style_Train_Data");
-String classifiedValue = Classifier.classifyWithWeka(InfoExtract_Style_Train_Data);
-String crfModelPath = Classifier.getCRFModelPath(classifiedValue);
-InfoExtract.InfoExtract(refText);
-;
+    public static void InfoExtract_Style(addition.Ref_Style Ref_Style) {
+        if(Ref_Style.Style==null || Ref_Style.Style == ""){String crfModelPath = Graph2.makeProblemGraph(Ref_Style,"classifier",Ref_Style);//String InfoExtract_Style_Train_Data = Classifier.getTrainData("InfoExtract_Style_Train_Data");
+//String classifiedValue = Classifier.classifyWithWeka(InfoExtract_Style_Train_Data);
+//String crfModelPath = Classifier.getCRFModelPath(classifiedValue);
+InfoExtract.InfoExtract(Ref_Style.getText(), crfModelPath);
+};
     }
 
     public String Style;

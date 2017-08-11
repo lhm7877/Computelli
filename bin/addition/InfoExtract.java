@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 public class InfoExtract{
-public static void InfoExtract (Ref ref) // aRef is an instance of RefSet
+public static Ref InfoExtract (Ref ref) // aRef is an instance of RefSet
 {
          
                 System.out.println("InfoExtract 함수 실행중");
@@ -23,8 +23,7 @@ String command = "java -cp  \"C:/mallet/class;C:/mallet/lib/mallet-deps.jar;\"" 
 				+ " C:/mallet/stest";
 	
 	executeSystemCommand(command2);
-
-
+                return ref;
 }
 public static void executeSystemCommand(String s)
 {

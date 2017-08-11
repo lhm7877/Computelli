@@ -1,4 +1,5 @@
 package addition;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,11 +22,11 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 public class ReflectionMaker {
-//	Stack<Object> inputStack;	
-	Stack<String> outputStack;
+	// Stack<Object> inputStack;
+	Stack<Object> outputStack;
 
-	public ReflectionMaker(Stack<String> outputStack) {
-		this.outputStack = outputStack;
+	public ReflectionMaker(Stack<Object> outputStack2) {
+		this.outputStack = outputStack2;
 	}
 
 	public File writeSource(String className, String source, String path) {
@@ -56,18 +57,20 @@ public class ReflectionMaker {
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
 		List<String> optionList = new ArrayList<String>();
-		optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
-//		optionList.addAll(Arrays.asList("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar"));
-//		optionList.add("-classpath");
-//		optionList.add("java.class.path");
-//		optionList.add("C:/Program Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/addition"+";C:/Users/Hooo/workspace/rdf-prog/bin/ke/;");
-//		System.out.println("!!!!!!!!!!!!!!!!!ClassPath 목록");
-//		for(int i =0; i<optionList.size(); i++){
-//			System.out.println(optionList.get(i).toString());
-//		}
-//		System.out.println();
-		
-//		System.out.println(ConnectionAlgoDB.class.getResource("").getPath());
+		optionList.addAll(Arrays.asList("-classpath", System.getProperty("java.class.path")));
+		// optionList.addAll(Arrays.asList("C:/Program
+		// Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar"));
+		// optionList.add("-classpath");
+		// optionList.add("java.class.path");
+		// optionList.add("C:/Program
+		// Files/Java/jre1.8.0_77/lib/javaparser-core-3.0.0-alpha.3.jar;"+"C:/Users/Hooo/workspace/Computelli/bin/addition"+";C:/Users/Hooo/workspace/rdf-prog/bin/ke/;");
+		// System.out.println("!!!!!!!!!!!!!!!!!ClassPath 목록");
+		// for(int i =0; i<optionList.size(); i++){
+		// System.out.println(optionList.get(i).toString());
+		// }
+		// System.out.println();
+
+		// System.out.println(ConnectionAlgoDB.class.getResource("").getPath());
 		Iterable<? extends JavaFileObject> compilationUnit = fileManager
 				.getJavaFileObjectsFromFiles(Arrays.asList(file));
 		JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, optionList, null,
@@ -90,7 +93,7 @@ public class ReflectionMaker {
 	}
 
 	public Parameter makeParObject(URLClassLoader urlClassLoader, String className, String strMethod, int numInArgs,
-			String inArgType, Parameter parameter, int index, Object paraObjectAr) {
+			String inArgType, Parameter parameter, int index, Object paraObject) {
 		try {
 			// Class<?> loadedClass;
 			// Object object;
@@ -103,18 +106,21 @@ public class ReflectionMaker {
 			// ");
 			// meth2.invoke(object, inputStack.pop().toString());
 
-			parameter.setParTypes(urlClassLoader.loadClass("addition."+className), index);
-			//이부분을 새로 생성하는게 아니라 객체를 전달할 수 있도록 해야함
-//			parameter.setParObj(parameter.partypes[index].newInstance(), index);
-			parameter.setParObj(parameter.partypes[index].newInstance(), index);
-			
-//			Class<?> parameterOfParameterType = urlClassLoader.loadClass(inArgType);
-//			Method meth = parameter.partypes[index].getMethod(strMethod, parameterOfParameterType);
-//			outputStack.push("박성희, (2016), \"KE\", 정보관리학회, 33, (3), pp. 22-40 ");
-//			meth.invoke(parameter.parObj[index],outputStack.pop().toString());
+			parameter.setParTypes(urlClassLoader.loadClass("addition." + className), index);
+			// 이부분을 새로 생성하는게 아니라 객체를 전달할 수 있도록 해야함 -> 2017.08.10 해결
+			// parameter.setParObj(parameter.partypes[index].newInstance(),
+			// index);
+
+			if (paraObject.getClass() == java.lang.String.class) {
+				Object obj = parameter.partypes[index].newInstance();
+				Class<?> parameterOfParameterType = urlClassLoader.loadClass(inArgType);
+				Method meth = parameter.partypes[index].getMethod(strMethod, parameterOfParameterType);
+				meth.invoke(obj, paraObject);// inargType은 string이어야만 하기로 되어있다.
+				parameter.setParObj(obj, index);
+			}else{
+				parameter.setParObj(paraObject, index);
+			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
@@ -122,61 +128,72 @@ public class ReflectionMaker {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-		} 
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return parameter;
 	}
 
-	public String sourceRun(URLClassLoader urlClassLoader, String className, String inArgType, int numInArgs,
+	public Object sourceRun(URLClassLoader urlClassLoader, String className, String inArgType, int numInArgs,
 			String strMethod, Parameter parameter) {
-		String result = "";
+		Object result = "";
 		try {
-			Class<?> loadedClass = urlClassLoader.loadClass("addition."+className);// "add"\
+			Class<?> loadedClass = urlClassLoader.loadClass("addition." + className);// "add"\
 			Object obj = loadedClass.newInstance();
 			Object obj2 = null;
 			Method meth2 = null;
-//			Method meth = null;
+			// Method meth = null;
 			if (!(inArgType == null)) {
 				String type[] = inArgType.split(",");
 				Class<?>[] partypes = new Class[numInArgs];
-//				for (int i = 0; i < numInArgs; i++) {
-					// parameter.get(i).partypes =
-					// urlClassLoader.loadClass(type[i]);
+				// for (int i = 0; i < numInArgs; i++) {
+				// parameter.get(i).partypes =
+				// urlClassLoader.loadClass(type[i]);
 
-					// Object testObj = partypes[i].newInstance();
-					// Method meth2 = partypes[i].getMethod("setText", new
-					// Class[] { String.class });
-					// meth2.invoke(testObj, "TestString2");
-					// }
-					// meth.invoke(obj, testObj);
-					// Ref2 ref2 = new Ref2();
+				// Object testObj = partypes[i].newInstance();
+				// Method meth2 = partypes[i].getMethod("setText", new
+				// Class[] { String.class });
+				// meth2.invoke(testObj, "TestString2");
+				// }
+				// meth.invoke(obj, testObj);
+				// Ref2 ref2 = new Ref2();
 
-					
-//					Method[] m = loadedClass.getDeclaredMethods();
-//					System.out.println("메소드들!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//					for(int j =0; j<m.length; j++){
-//						System.out.println(m[j].getName());
-//						System.out.println(m[j].getParameters().toString());
-//					투}
-					
-					 Method meth = loadedClass.getMethod(strMethod,parameter.partypes);
-					// System.out.println(parameter.get(i).parObj.toString());
-					 result = (String) meth.invoke(obj, parameter.parObj);
+				// Method[] m = loadedClass.getDeclaredMethods();
+				// System.out.println("메소드들!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				// for(int j =0; j<m.length; j++){
+				// System.out.println(m[j].getName());
+				// System.out.println(m[j].getParameters().toString());
+				// 투}
 
-					// Object parObj = partypes[i].newInstance();
-					// meth2.invoke(obj2, "TestString2");
-					// if (type[i].equals("java.lang.String")) {
-					// meth.invoke(obj, inputStack.pop().toString());
-					// } else {
-					// meth.invoke(obj, parObj);
-					// }
-//					partypes[i] = urlClassLoader.loadClass(type[i]);
-//					meth2 = partypes[i].getMethod("setText", new Class[] { String.class });
-//					obj2 = partypes[i].newInstance();
-					
-//				}
-//				meth = loadedClass.getMethod(strMethod, partypes);
-//				meth2.invoke(obj2, "TestString2");
-//				meth.invoke(obj, obj2);
+				Method meth = loadedClass.getMethod(strMethod, parameter.partypes);
+				// System.out.println(parameter.get(i).parObj.toString());
+				// result = (String) meth.invoke(obj, parameter.parObj);
+				// 2017.08.09 아래처럼 수정
+				result = meth.invoke(obj, parameter.parObj);
+
+				// Object parObj = partypes[i].newInstance();
+				// meth2.invoke(obj2, "TestString2");
+				// if (type[i].equals("java.lang.String")) {
+				// meth.invoke(obj, inputStack.pop().toString());
+				// } else {
+				// meth.invoke(obj, parObj);
+				// }
+				// partypes[i] = urlClassLoader.loadClass(type[i]);
+				// meth2 = partypes[i].getMethod("setText", new Class[] {
+				// String.class });
+				// obj2 = partypes[i].newInstance();
+
+				// }
+				// meth = loadedClass.getMethod(strMethod, partypes);
+				// meth2.invoke(obj2, "TestString2");
+				// meth.invoke(obj, obj2);
 			}
 			urlClassLoader.close();
 

@@ -709,14 +709,14 @@ public class ConnectionAlgoDB {
 	
 	
 
-	public String execute(String queryOperator, Stack<String> outputStack) {
+	public Object execute(String queryOperator, Stack<Object> outputStack) {
 		String className = "";
 		String source = "";
 		String inArgType = "";
 		int numInArgs = 0;
 		String methodName = "";
 		Parameter parameter = new Parameter();
-		String result = "";
+		Object result = "";
 		URLClassLoader urlClassLoader = null;
 		ResultSet rs = getResultSet(queryOperator);
 		try {
@@ -758,7 +758,16 @@ public class ConnectionAlgoDB {
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
-				} else {
+				} else if(type[i].equals("Object")){
+					Object parObj;
+					try {
+						parameter.setParTypes(Class.forName("java.lang.Object"), i);
+						callParameter = paraObjectAr[i];
+						parameter.setParObj(callParameter, i);
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}else {
 					rs = getResultSet(type[i]);
 					System.out.println("query: " + type[i]);
 					try {
@@ -776,6 +785,7 @@ public class ConnectionAlgoDB {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
+					callParameter = paraObjectAr[i];
 
 					String path = ConnectionAlgoDB.class.getResource("").getPath();
 
@@ -834,14 +844,14 @@ public class ConnectionAlgoDB {
 		return result;
 	}
 
-	public String execute(String queryOperator, Stack<String> outputStack, String parentValue) {
+	public Object execute(String queryOperator, Stack<Object> outputStack, String parentValue) {
 		String className = "";
 		String source = "";
 		String inArgType = "";
 		int numInArgs = 0;
 		String methodName = "";
 		Parameter parameter = new Parameter();
-		String result = "";
+		Object result = "";
 		// String[] a = new String[outputStack.size()];
 		URLClassLoader urlClassLoader = null;
 		// for (int i = 0; i < a.length; i++) {
@@ -859,11 +869,11 @@ public class ConnectionAlgoDB {
 		}
 		String type[] = inArgType.split(",");
 		// type.length -> outputStack.size()+1
-		Object[] paraObjectAr = new String[type.length];
+		Object[] paraObjectAr = new Object[type.length];
 		paraObjectAr[0] = parentValue;
 		for (int i = 1; i < paraObjectAr.length; i++) {
 			if (i == 2) {
-				outputStack.push("infoExtract");
+				outputStack.push("infoExtract");//ref와 infoextract를 집어넣기 위해 임시 수정
 			}
 			paraObjectAr[i] = outputStack.pop();
 		}
@@ -877,6 +887,15 @@ public class ConnectionAlgoDB {
 				Object parObj;
 				try {
 					parameter.setParTypes(Class.forName("java.lang.String"), i);
+					callParameter = paraObjectAr[i];
+					parameter.setParObj(callParameter, i);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			} else if(type[i].equals("Object")){
+				Object parObj;
+				try {
+					parameter.setParTypes(Class.forName("java.lang.Object"), i);
 					callParameter = paraObjectAr[i];
 					parameter.setParObj(callParameter, i);
 				} catch (ClassNotFoundException e) {
@@ -976,24 +995,6 @@ public class ConnectionAlgoDB {
 			} else {
 				System.out.println("컴파일 안됨");
 			}
-
-			// compileCheck = rMaker.compileSource(file);
-			// if (compileCheck) {// 소스파일 컴파일
-			// System.out.println("컴파일됨");
-			// urlClassLoader = rMaker.sourceClassLoader(path);
-			// if (flag) {
-			// parObject = rMaker.makeParObject(urlClassLoader, className,
-			// methodName, numInArgs);
-			// flag = false;
-			// } else {
-			// rMaker.sourceRun(urlClassLoader, className, inArgType, numInArgs,
-			// methodName, parObject);
-			// }
-			// } else {
-			// flag = false;
-			// System.out.println("컴파일 안됨");
-			//
-			// }
 			urlClassLoader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1146,7 +1147,7 @@ public class ConnectionAlgoDB {
 		Stack<String> outputStack = new Stack<>();
 
 		// outputStack.push("박성희, (2016), \"KE\", 정보관리학회, 33, (3), pp. 22-40 ");
-		connectionAlgoDB.execute("infoExtract", outputStack, "test");
+//		connectionAlgoDB.execute("infoExtract", outputStack, "test");
 		// connectionAlgoDB.execute("typeOf", inputStack, outputStack);
 		// connectionAlgoDB.execute("Ref", inputStack, outputStack);
 		// connectionAlgoDB.execute("infoExtract", outputStack, outputStack);
